@@ -1,7 +1,6 @@
 import RPi.GPIO as g
 import sys
 import time
-import threading
 
 g.setmode(g.BOARD)
 trig1 = 11
@@ -43,118 +42,165 @@ m2.start(25)
 
 time.sleep(1)
 
-def motorControl(char x):
+def motor1(x):
     #print("\n")
     #print("The default speed & direction of motor is LOW & Forward.....")
     #print("r-run s-stop f-forward b-backward l-low m-medium h-high e-exit")
     #print("\n")
-    
-    while(1):
+
         #x=input()
         if x=='r':
             print("run")
             if(temp1==1):
-             g.output(in1,g.HIGH)
-             g.output(in2,g.LOW)
-             g.output(in3,g.HIGH)
-             g.output(in4,g.LOW)
-             print("forward")
+                g.output(in1,g.HIGH)
+                g.output(in2,g.LOW)
+                print("Motor 2 turned forward")
             else:
-             g.output(in1,g.LOW)
-             g.output(in2,g.HIGH)
-             g.output(in3,g.LOW)
-             g.output(in4,g.HIGH)
-             print("backward")
+                g.output(in1,g.LOW)
+                g.output(in2,g.HIGH)
+                print("Motor 2 turned backward")
 
         elif x=='s':
-            print("stop")
+            print("Motor 2 has stopped")
             g.output(in1,g.LOW)
             g.output(in2,g.LOW)
+
+        elif x=='f':
+            print("Motor 2 turned forward")
+            g.output(in1,g.HIGH)
+            g.output(in2,g.LOW)
+            temp1=1
+
+        elif x=='b':
+            print("Motor 2 turned backward")
+            g.output(in1,g.LOW)
+            g.output(in2,g.HIGH)
+            temp1=0
+
+        elif x=='l':
+            print("Motor 1 is in low speed now")
+            m1.ChangeDutyCycle(25)
+
+        elif x=='m':
+            print("Motor 1 is in medium speed now")
+            m1.ChangeDutyCycle(50)
+
+        elif x=='h':
+            print("Motor 1 is in high speed now")
+            m1.ChangeDutyCycle(100)
+        
+        elif x=='e':
+            g.cleanup()
+            print("GPIO Clean up")
+            exit()
+        
+        else:
+            print("<<<  wrong entry  >>>")
+            print("please enter ta valid command to continue.....")
+            
+def motor2(x):
+    #print("\n")
+    #print("The default speed & direction of motor is LOW & Forward.....")
+    #print("r-run s-stop f-forward b-backward l-low m-medium h-high e-exit")
+    #print("\n")
+
+        #x=input()
+        if x=='r':
+            print("run")
+            if(temp2==1):
+                g.output(in3,g.HIGH)
+                g.output(in4,g.LOW)
+                print("Motor 2 turned forward")
+            else:
+                g.output(in3,g.LOW)
+                g.output(in4,g.HIGH)
+                print("Motor 2 turned backward")
+
+        elif x=='s':
+            print("Motor 2 has stopped")
             g.output(in3,g.LOW)
             g.output(in4,g.LOW)
 
         elif x=='f':
-            print("forward")
+            print("Motor 2 turned forward")
             g.output(in1,g.HIGH)
             g.output(in2,g.LOW)
-            g.output(in3,g.HIGH)
-            g.output(in4,g.LOW)
-            temp1=1
+            temp2=1
 
         elif x=='b':
-            print("backward")
-            g.output(in1,g.LOW)
-            g.output(in2,g.HIGH)
+            print("Motor 2 turned backward")
             g.output(in3,g.LOW)
             g.output(in4,g.HIGH)
-            temp1=0
+            temp2=0
 
         elif x=='l':
-            print("low")
-            m1.ChangeDutyCycle(25)
+            print("Motor 2 is in low speed now")
             m2.ChangeDutyCycle(25)
 
         elif x=='m':
-            print("medium")
-            m1.ChangeDutyCycle(50)
+            print("Motor 2 is in medium speed now")
             m2.ChangeDutyCycle(50)
 
         elif x=='h':
-            print("high")
-            m1.ChangeDutyCycle(100)
+            print("Motor 2 is in high speed now")
             m2.ChangeDutyCycle(100)
         
         elif x=='e':
             g.cleanup()
             print("GPIO Clean up")
-            break
+            exit()
         
         else:
             print("<<<  wrong entry  >>>")
             print("please enter ta valid command to continue.....")
 
-def sensorControl():
+def distControl():
     try:
-        init_t1 = 0
-        end_t1 = 0
-        init_t2 = 0
-        end_t2 = 0
+        init_t = 0
+        end_t = 0
         
-        while(True) :
-            g.output(trig1,g.LOW)
-            time.sleep(0.2)
-            g.output(trig1, g.HIGH)
-            time.sleep(0.2)
-            g.output(trig1,g.LOW)
-            
-            while g.input(echo1) == 0 :
-                init_t1 = time.time()
-                
-            while g.input(echo1) == 1 :
-                end_t1 = time.time()
-                
-            g.output(trig2,g.LOW)
-            time.sleep(0.2)
-            g.output(trig2, g.HIGH)
-            time.sleep(0.2)
-            g.output(trig2,g.LOW)
-            
-            while g.input(echo2) == 0 :
-                init_t2 = time.time()
-                
-            while g.input(echo2) == 1 :
-                end_t2 = time.time()
-                
-            tempo1 = end_t1 - init_t1
-            tempo2 = end_t2 - init_t2
-            dist1 = (tempo1 * 17000) ## velocidade = 34000 cm/s
-            dist2 = (tempo2 * 17000) ## ida e volta
-            print(f"Dist1: {dist1} \t Dist2: {dist2}")
+        g.output(trig1,g.LOW)
+        time.sleep(0.2)
+        g.output(trig1, g.HIGH)
+        time.sleep(0.2)
+        g.output(trig1,g.LOW)
+
+        while g.input(echo1) == 0 :
+            init_t = time.time()
+
+        while g.input(echo1) == 1 :
+            end_t = time.time()
+
+        tempo = end_t - init_t
+        dist1 = (tempo * 17150)    ## velocidade = 34300 cm/s
+                                    ## ida e volta
+        g.output(trig2,g.LOW)
+        time.sleep(0.2)
+        g.output(trig2, g.HIGH)
+        time.sleep(0.2)
+        g.output(trig2,g.LOW)
+
+        while g.input(echo2) == 0 :
+            init_t2 = time.time()
+
+        while g.input(echo2) == 1 :
+            end_t2 = time.time()
+
+        tempo = end_t - init_t
+        dist2 = (tempo * 17150)    ## velocidade = 34300 cm/s
+                                    ## ida e volta
+        print(f"Dist1: {dist1} \t Dist2: {dist2}")
+        return [dist1, dist2]
                                    
     except KeyboardInterrupt:
         g.cleanup()
 
 if __name__ == "__main__":
-    motorControl()
-
-
+    while(True)
+        dist = distControl()
+        if dist[0]<10 and dist[1]<10:
+            motor1('l')
+            motor1('f')
+            motor2('l')
+            motor2('b')
+            time.sleep(100)
