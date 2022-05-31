@@ -47,7 +47,7 @@ def main(args):
 
         while True:
             try:
-                data=I2Cbus.read_i2c_block_data(slaveAddress,0x00,16)
+                data=I2Cbus.read_i2c_block_data(slaveAddress,0x00,1)
                 print("recieve from slave:")
                 print(data)
             except:
@@ -61,4 +61,3 @@ if __name__ == '__main__':
      except KeyboardInterrupt:
         print("program was stopped manually")
      input()
-
