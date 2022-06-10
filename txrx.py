@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Raspberry Pi to Arduino Serial Communication
+# source https://www.filipeflop.com/blog/bussola-com-o-modulo-hmc5883l-uma-anel-de-leds-rgb-e-um-arduino/
 
 import serial
 
