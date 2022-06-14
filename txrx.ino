@@ -2,20 +2,28 @@
 // Autor: Henrique Almeida
 
 char buf;
+int incomingByte;
  
 void setup(){
   Serial.begin(9600);
+  /* initialize random seed: */
+  randomSeed(analogRead(0));
+
 }
  
 void loop(){
-  Serial.print("\nSistema ligado\n");
-  delay(1000);
-  while (Serial.available() > 0){
-    buf = Serial.read();
+  //delay(2000);
+  
+  if (Serial.available() > 0) {
+    // lê o dado recebido:
+    incomingByte = Serial.read();
+    buf = random(97,123);
     // Caso seja recebido o caracter significativo
-    if (buf!='\n'){
+    if (incomingByte!='\n'){
       // Envia a resposta para o Raspberry
-      Serial.print("\nRecebido! - Bit: ");
+      delay(200);
+      Serial.print((char)incomingByte);
+      Serial.print(" recebido! - Bit: ");
       Serial.println(buf);
     }
   }
