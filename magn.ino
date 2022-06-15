@@ -1,3 +1,6 @@
+/* 
+source: http://electronoobs.com/eng_arduino_tut77.php
+*/
 #import <Wire.h>
 #define address 0x1E //0011110b, I2C 7bit address of HMC5883
 
