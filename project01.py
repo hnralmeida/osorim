@@ -52,6 +52,43 @@ m2.start(25)
 
 time.sleep(1)
 
+def distControl():
+    init_t = 0
+    end_t = 0
+    
+    g.output(trig1,g.LOW)
+    time.sleep(0.2)
+    g.output(trig1, g.HIGH)
+    time.sleep(0.2)
+    g.output(trig1,g.LOW)
+
+    while g.input(echo1) == 0 :
+        init_t = time.time()
+
+    while g.input(echo1) == 1 :
+        end_t = time.time()
+
+    tempo = end_t - init_t
+    dist1 = (tempo * 17150)    ## velocidade = 34300 cm/s
+                                ## ida e volta
+    g.output(trig2,g.LOW)
+    time.sleep(0.2)
+    g.output(trig2, g.HIGH)
+    time.sleep(0.2)
+    g.output(trig2,g.LOW)
+
+    while g.input(echo2) == 0 :
+        init_t2 = time.time()
+
+    while g.input(echo2) == 1 :
+        end_t2 = time.time()
+
+    tempo = end_t - init_t
+    dist2 = (tempo * 17150)    ## velocidade = 34300 cm/s
+                                ## ida e volta
+    print(f"Dist1: {dist1} \t Dist2: {dist2}")
+    return [dist1, dist2]
+
 def motor1(x):
     if x=='r':
         if(temp1==1):
@@ -205,6 +242,5 @@ if __name__ == '__main__':
     try:
         main()
     except (KeyboardInterrupt):
-        pass
-    
+        g.cleanup()
     
