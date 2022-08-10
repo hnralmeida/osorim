@@ -13,15 +13,11 @@ import sys
 g.setmode(g.BOARD)
 
 # Iniciando Sensor UltraSonico
-trig1 = 11
-echo1 = 13
-echo2 = 15
-trig2 = 16
+echo = 15
+trig = 16
 
-g.setup(trig1, g.OUT)
-g.setup(trig2, g.OUT)
-g.setup(echo1, g.IN)
-g.setup(echo2, g.IN)
+g.setup(trig, g.OUT)
+g.setup(echo, g.IN)
 
 # Iniciando Motores
 ena = 12
@@ -52,43 +48,38 @@ m2.start(25)
 
 time.sleep(1)
 
+# funcao para garantir a leitura correta da distancia
+def distFix(dist):
+    dist.sort()
+    return dist[2]
+
+# funcao que retorna a distancia medida pelo sensor ultrassonico
 def distControl():
     init_t = 0
     end_t = 0
     
-    g.output(trig1,g.LOW)
+    g.output(trig,g.LOW)
     time.sleep(0.2)
-    g.output(trig1, g.HIGH)
+    g.output(trig, g.HIGH)
     time.sleep(0.2)
-    g.output(trig1,g.LOW)
+    g.output(trig,g.LOW)
 
-    while g.input(echo1) == 0 :
+    while g.input(echo) == 0 :
         init_t = time.time()
 
-    while g.input(echo1) == 1 :
+    while g.input(echo) == 1 :
         end_t = time.time()
 
     tempo = end_t - init_t
-    dist1 = (tempo * 17150)    ## velocidade = 34300 cm/s
+    dist = (tempo * 17150)    ## velocidade = 34300 cm/s
                                 ## ida e volta
-    g.output(trig2,g.LOW)
-    time.sleep(0.2)
-    g.output(trig2, g.HIGH)
-    time.sleep(0.2)
-    g.output(trig2,g.LOW)
+    return dist
 
-    while g.input(echo2) == 0 :
-        init_t2 = time.time()
-
-    while g.input(echo2) == 1 :
-        end_t2 = time.time()
-
-    tempo = end_t - init_t
-    dist2 = (tempo * 17150)    ## velocidade = 34300 cm/s
-                                ## ida e volta
-    print(f"Dist1: {dist1} \t Dist2: {dist2}")
-    return [dist1, dist2]
-
+# recebe um parametro que contra o motor
+# aceita os comandos:
+# r (run), s (stop)
+# f (foward), b (backward)
+# l (low), m (medium), h (high)
 def motor1(x):
     if x=='r':
         if(temp1==1):
@@ -137,7 +128,12 @@ def motor1(x):
     else:
         print("<<<  wrong entry  >>>")
         print("please enter ta valid command to continue.....")
-        
+
+# recebe um parametro que contra o motor
+# aceita os comandos:
+# r (run), s (stop)
+# f (foward), b (backward)
+# l (low), m (medium), h (high)
 def motor2(x):
     if x=='r':
         if(temp2==1):
@@ -187,54 +183,21 @@ def motor2(x):
         print("<<<  wrong entry  >>>")
         print("please enter ta valid command to continue.....")
 
-def distControl():
-    try:
-        init_t = 0
-        end_t = 0
-        
-        g.output(trig1,g.LOW)
-        time.sleep(0.2)
-        g.output(trig1, g.HIGH)
-        time.sleep(0.2)
-        g.output(trig1,g.LOW)
-
-        while g.input(echo1) == 0 :
-            init_t = time.time()
-
-        while g.input(echo1) == 1 :
-            end_t = time.time()
-
-        tempo = end_t - init_t
-        dist1 = (tempo * 17150)    ## velocidade = 34300 cm/s
-                                    ## ida e volta
-        g.output(trig2,g.LOW)
-        time.sleep(0.2)
-        g.output(trig2, g.HIGH)
-        time.sleep(0.2)
-        g.output(trig2,g.LOW)
-
-        while g.input(echo2) == 0 :
-            init_t2 = time.time()
-
-        while g.input(echo2) == 1 :
-            end_t2 = time.time()
-
-        tempo = end_t - init_t
-        dist2 = (tempo * 17150)    ## velocidade = 34300 cm/s
-                                    ## ida e volta
-        print(f"Dist1: {dist1} \t Dist2: {dist2}")
-        return [dist1, dist2]
-                                   
-    except KeyboardInterrupt:
-        g.cleanup()
-
+# funcao principal de teste 
 def main():
     # for serial reading is used
     #     line = ser.readline().decode('utf-8').rstrip()
     ser = serial.Serial('dev/ttyACM0', 9600, timeout=1)
     ser.flush()
     
-    
+    while(1) :
+        dist = [ ]
+        for i in range(1,6) :
+            dist.append( distControl() )
+            
+        distFix(dist)
+        
+        ###
     
     ser.close()
     
@@ -242,5 +205,7 @@ if __name__ == '__main__':
     try:
         main()
     except (KeyboardInterrupt):
+        ser.close()
         g.cleanup()
+    
     
