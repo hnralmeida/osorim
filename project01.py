@@ -261,9 +261,9 @@ def main():
                 rotate90(ser)
                 motor1('f')
                 motor2('f')
-            else:
-                motor1('f')
-                motor2('f')
+        else:
+            motor1('f')
+            motor2('f')
         servoD('f')
         sleep(0.5)
         ###
