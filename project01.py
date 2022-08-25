@@ -5,7 +5,7 @@
 # github.com/hnralmeida/osorim/project01
 #
 
-import RPi.GPIO
+import RPi.GPIO as g
 import serial
 from time import sleep
 import sys
@@ -26,6 +26,7 @@ in1 = 29
 in2 = 31
 in3 = 35
 in4 = 37
+serialPort = 'dev/ttyAMA0/'
 
 g.setup(in1, g.OUT)
 g.setup(in2, g.OUT)
@@ -46,11 +47,11 @@ m2 = g.PWM(enb, 1000)
 m1.start(25)
 m2.start(25)
 
-time.sleep(1)
+sleep(1)
 
 # Set pin 11 as an output, and set servo1 as pin 11 as PWM
-GPIO.setup(11,GPIO.OUT)
-servo1 = GPIO.PWM(11,50) # Note 11 is pin, 50 = 50Hz pulse
+g.setup(11,g.OUT)
+servo1 = g.PWM(11,50) # Note 11 is pin, 50 = 50Hz pulse
 
 #start PWM running, but with value of 0 (pulse off)
 servo1.start(0)
@@ -232,7 +233,7 @@ def rotate90(ser) :
 def main():
     # for serial reading is used
     #     line = ser.readline().decode('utf-8').rstrip()
-    ser = serial.Serial('dev/ttyACM0', 9600, timeout=1)
+    ser = serial.Serial(serialPort, 9600, timeout=1)
     ser.flush()
     
     while(1) :
@@ -276,5 +277,4 @@ if __name__ == '__main__':
     except (KeyboardInterrupt):
         ser.close()
         g.cleanup()
-    
-    
+
