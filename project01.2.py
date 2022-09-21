@@ -9,7 +9,6 @@ import RPi.GPIO as g
 import serial
 from time import sleep
 import sys
-import Adafruit_PCA9685
 
 
 # Configuracoes
@@ -23,37 +22,13 @@ trig = 16
 g.setup(trig, g.OUT)
 g.setup(echo, g.IN)
 
-# Iniciando Motores
-# e PCA9685 usando endereco default (0x40).
-PCA9685_pwm = Adafruit_PCA9685.PCA9685()
-PCA9685_pwm.set_pwm_freq(60)
-duty_cycle = 4095
-
-in1 = 32
-in2 = 12
-in3 = 33
-in4 = 35
+# comunicacao serial
 serialPort = 'dev/ttyAMA0/'
-
-g.setup(in1, g.OUT)
-g.setup(in2, g.OUT)
-g.setup(in3, g.OUT)
-g.setup(in4, g.OUT)
-
-g.output(in1, g.HIGH)
-g.output(in2, g.LOW)
-g.output(in3, g.HIGH)
-g.output(in4, g.LOW)
-
 sleep(1)
 
 # Set pin 11 as an output, and set servo1 as pin 11 as PWM
 g.setup(11,g.OUT)
 servo1 = g.PWM(11,50) # Note 11 is pin, 50 = 50Hz pulse
-
-#start PWM running, but with value of 0 (pulse off)
-servo1.start(0)
-servo1.ChangeDutyCycle(7)
 
 # funcao para garantir a leitura correta da distancia
 def distFix(dist):
@@ -97,54 +72,8 @@ def retDist():
 # r (run), s (stop)
 # f (foward), b (backward)
 # l (low), m (medium), h (high)
-def motor1(x):
-    if x=='r':
-        if(temp1==1):
-            g.output(in1,g.HIGH)
-            g.output(in2,g.LOW)
-            print("Motor 2 turned forward")
-        else:
-            g.output(in1,g.LOW)
-            g.output(in2,g.HIGH)
-            print("Motor 2 turned backward")
-
-    elif x=='s':
-        print("Motor 2 has stopped")
-        g.output(in1,g.LOW)
-        g.output(in2,g.LOW)
-
-    elif x=='f':
-        print("Motor 2 turned forward")
-        g.output(in1,g.HIGH)
-        g.output(in2,g.LOW)
-        temp1=1
-
-    elif x=='b':
-        print("Motor 2 turned backward")
-        g.output(in1,g.LOW)
-        g.output(in2,g.HIGH)
-        temp1=0
-
-#    elif x=='l':
-#        print("Motor 1 is in low speed now")
-#        m1.ChangeDutyCycle(25)
-
-#    elif x=='m':
-#        print("Motor 1 is in medium speed now")
-#        m1.ChangeDutyCycle(50)
-
-#    elif x=='h':
-#        print("Motor 1 is in high speed now")
-#        m1.ChangeDutyCycle(100)
-    
-    elif x=='e':
-        g.cleanup()
-        print("GPIO Clean up")
-        exit()
-    
-    else:
-        print("<<<  wrong entry  >>>")
-        print("please enter ta valid command to continue.....")
+def motor1(x, arduino):
+    arduino.write(x.enconde())
 
 # recebe um parametro que contra o motor
 # aceita os comandos:
@@ -152,53 +81,7 @@ def motor1(x):
 # f (foward), b (backward)
 # l (low), m (medium), h (high)
 def motor2(x):
-    if x=='r':
-        if(temp2==1):
-            g.output(in3,g.HIGH)
-            g.output(in4,g.LOW)
-            print("Motor 2 turned forward")
-        else:
-            g.output(in3,g.LOW)
-            g.output(in4,g.HIGH)
-            print("Motor 2 turned backward")
-
-    elif x=='s':
-        print("Motor 2 has stopped")
-        g.output(in3,g.LOW)
-        g.output(in4,g.LOW)
-
-    elif x=='f':
-        print("Motor 2 turned forward")
-        g.output(in1,g.HIGH)
-        g.output(in2,g.LOW)
-        temp2=1
-
-    elif x=='b':
-        print("Motor 2 turned backward")
-        g.output(in3,g.LOW)
-        g.output(in4,g.HIGH)
-        temp2=0
-
-    elif x=='l':
-        print("Motor 2 is in low speed now")
-        m2.ChangeDutyCycle(25)
-
-    elif x=='m':
-        print("Motor 2 is in medium speed now")
-        m2.ChangeDutyCycle(50)
-
-    elif x=='h':
-        print("Motor 2 is in high speed now")
-        m2.ChangeDutyCycle(100)
-    
-    elif x=='e':
-        g.cleanup()
-        print("GPIO Clean up")
-        exit()
-    
-    else:
-        print("<<<  wrong entry  >>>")
-        print("please enter ta valid command to continue.....")
+    arduino.write(x.enconde())
         
 # controle do servo
 # f deixa a 90 graus
@@ -215,6 +98,7 @@ def servoD(x):
 # checa uma rotacao de 90 graus
 def rotate90(ser) :
     rot = 0
+    ser.flush()
     while rot < 1.57 and rot > (-1.57):
         try:
             line = float(ser.readline().decode('utf-8').rstrip())
@@ -275,4 +159,3 @@ if __name__ == '__main__':
     except (KeyboardInterrupt):
         ser.close()
         g.cleanup()
-
